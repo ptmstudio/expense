@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #0c0c0c;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        /* Login/Signup Styles */
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(25, 25, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            animation: fadeIn 1s ease;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .auth-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 25px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .auth-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-bottom: 3px solid #ff8a00;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50px;
+            outline: none;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.3);
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+        }
+        
+        .input-group input:focus + i {
+            color: #ff8a00;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .auth-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(229, 46, 113, 0.3);
+        }
+        
+        .auth-button:active {
+            transform: translateY(0);
+        }
+        
+        .auth-link {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 20px;
+        }
+        
+        .auth-link a {
+            color: #ff8a00;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Main App Styles */
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: none;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        header {
+            background: #4a6ee0;
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #3a5ec0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            width: auto;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .summary-item {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .summary-item h3 {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .summary-item p {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .income {
+            color: #2ecc71;
+        }
+
+        .expenses {
+            color: #e74c3c;
+        }
+
+        .balance {
+            color: #3498db;
+        }
+
+        .form-section {
+            padding: 25px;
+        }
+
+        .form-section h2 {
+            margin-bottom: 15px;
+            color: #444;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        /* Amazing Add Transaction Button */
+        .submit-btn-container {
+            position: relative;
+            margin-top: 25px;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            box-shadow: 0 10px 20px rgba(37, 117, 252, 0.3);
+            z-index: 1;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(37, 117, 252, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+            z-index: -1;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+            z-index: -1;
+        }
+
+        .submit-btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-icon {
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .submit-btn:hover .btn-icon {
+            transform: rotate(15deg);
+        }
+
+        .btn-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: float 3s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        .transaction-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .transaction-name {
+            font-weight: 600;
+        }
+
+        .transaction-category {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-right: 10px;
+        }
+
+        .income-transaction .transaction-amount {
+            color: #2ecc71;
+        }
+
+        .expense-transaction .transaction-amount {
+            color: #e74c3c;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .graphs-section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .graphs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .graph-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .graph-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #444;
+            text-align: center;
+        }
+
+        .pie-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+
+        .chart-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-center span {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .chart-center small {
+            font-size: 0.7rem;
+            color: #777;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .legend-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        .legend-label {
+            font-size: 0.9rem;
+        }
+
+        .legend-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 10px;
+            padding: 10px 0;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            height: 100%;
+            min-width: 60px;
+        }
+
+        .bar {
+            width: 100%;
+            background: #4a6ee0;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: height 0.5s ease;
+        }
+
+        .bar-label {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .graphs-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .transaction-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .transaction-details {
+                min-width: 100%;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .user-info {
+                justify-content: center;
+            }
+            
+            .container {
+                max-height: 90vh;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .auth-container {
+                width: 95%;
+                padding: 25px;
+            }
+            
+            .auth-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+            
+            .graphs-section {
+                padding: 15px;
+            }
+            
+            .graph-card {
+                padding: 15px;
+            }
+            
+            .pie-chart {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .chart-center {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .chart-center span {
+                font-size: 1rem;
+            }
+            
+            .bar-chart {
+                height: 150px;
+            }
+            
+            .submit-btn {
+                padding: 14px;
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .auth-container {
+                padding: 20px;
+            }
+            
+            .auth-tab {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .summary-item p {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+    <div class="background" id="dynamicBackground"></div>
+    
+    <!-- Login/Signup Container -->
+    <div class="auth-container" id="auth-container">
+        <div class="auth-header">
+            <h1>Expense Tracker</h1>
+            <p>Track your income and expenses with detailed analytics</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <div class="auth-tab active" data-tab="login">Login</div>
+            <div class="auth-tab" data-tab="signup">Sign Up</div>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="auth-form active" id="login-form">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="login-email" placeholder="Email Address" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="login-password" placeholder="Password" required>
+            </div>
+            
+            <button type="button" class="auth-button" id="login-btn">Login</button>
+            
+            <div class="auth-link">
+                Don't have an account? <a href="#" id="show-signup">Sign Up</a>
+            </div>
+        </div>
+        
+        <!-- Signup Form -->
+        <div class="auth-form" id="signup-form">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="signup-firstname" placeholder="First Name" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="signup-lastname" placeholder="Last Name" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="signup-email" placeholder="Email Address" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-phone"></i>
+                <input type="tel" id="signup-phone" placeholder="Phone Number" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="signup-password" placeholder="Create Password" required>
+            </div>
+            
+            <button type="button" class="auth-button" id="signup-btn">Sign Up</button>
+            
+            <div class="auth-link">
+                Already have an account? <a href="#" id="show-login">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="container" id="app-container">
+        <header>
+            <h1>Expense Tracker</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <span id="user-name">User</span>
+                <button class="logout-btn" id="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="summary">
+            <div class="summary-item">
+                <h3>Total Income</h3>
+                <p class="income" id="total-income">₹0.00</p>
+            </div>
+            <div class="summary-item">
+                <h3>Total Expenses</h3>
+                <p class="expenses" id="total-expenses">₹0.00</p>
+            </div>
+            <div class="summary-item">
+                <h3>Balance</h3>
+                <p class="balance" id="balance">₹0.00</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Add New Transaction</h2>
+            <form id="transaction-form">
+                <div class="form-group">
+                    <label for="Name">Name</label>
+                    <input type="text" id="description" placeholder="Enter description" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" placeholder="Enter amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" required>
+                        <option value="">Select type</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select category</option>
+                        <option value="salary">Salary</option>
+                        <option value="freelance">Freelance</option>
+                        <option value="investment">Investment</option>
+                        <option value="food">Food</option>
+                        <option value="transport">Transport</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="bills">Bills</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="savings">Savings</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="education">Education</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Amazing Add Transaction Button -->
+                <div class="submit-btn-container">
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-plus-circle btn-icon"></i>
+                        Add Transaction
+                        <div class="btn-particles" id="btn-particles"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="transactions">
+            <h2>Transaction History</h2>
+            <div class="transaction-list" id="transaction-list">
+                <div class="transaction-item" style="text-align: center; color: #777; padding: 20px;">
+                    No transactions yet. Add your first transaction above.
+                </div>
+            </div>
+        </div>
+
+        <div class="graphs-section">
+            <h2>Financial Analytics</h2>
+            <div class="graphs-container">
+                <!-- Income vs Expenses Pie Chart -->
+                <div class="graph-card">
+                    <div class="graph-title">Income vs Expenses</div>
+                    <div class="pie-chart" id="income-expense-chart">
+                        <div class="chart-center">
+                            <span id="income-percent">0%</span>
+                            <small>Income</small>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-info">
+                                <div class="legend-color" style="background-color: #2ecc71;"></div>
+                                <span class="legend-label">Income</span>
+                            </div>
+                            <span class="legend-value" id="income-amount">₹0.00</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-info">
+                                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                                <span class="legend-label">Expenses</span>
+                            </div>
+                            <span class="legend-value" id="expense-amount">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expense Categories Pie Chart -->
+                <div class="graph-card">
+                    <div class="graph-title">Expense Categories</div>
+                    <div class="pie-chart" id="expense-categories-chart">
+                        <div class="chart-center">
+                            <span id="largest-category-percent">0%</span>
+                            <small id="largest-category-name">Largest</small>
+                        </div>
+                    </div>
+                    <div class="chart-legend" id="expense-categories-legend">
+                        <!-- Legend items will be added dynamically -->
+                    </div>
+                </div>
+
+                <!-- Category-wise Expense Bar Chart -->
+                <div class="graph-card">
+                    <div class="graph-title">Expenses by Category</div>
+                    <div class="bar-chart" id="category-bar-chart">
+                        <!-- Bars will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication state
+        let currentUser = null;
+        let transactions = [];
+
+        // DOM elements
+        const authContainer = document.getElementById('auth-container');
+        const appContainer = document.getElementById('app-container');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const showSignupLink = document.getElementById('show-signup');
+        const showLoginLink = document.getElementById('show-login');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        
+        // Transaction elements
+        const transactionForm = document.getElementById('transaction-form');
+        const transactionList = document.getElementById('transaction-list');
+        const totalIncomeEl = document.getElementById('total-income');
+        const totalExpensesEl = document.getElementById('total-expenses');
+        const balanceEl = document.getElementById('balance');
+        
+        // Graph elements
+        const incomeExpenseChart = document.getElementById('income-expense-chart');
+        const incomePercentEl = document.getElementById('income-percent');
+        const incomeAmountEl = document.getElementById('income-amount');
+        const expenseAmountEl = document.getElementById('expense-amount');
+        
+        const expenseCategoriesChart = document.getElementById('expense-categories-chart');
+        const largestCategoryPercentEl = document.getElementById('largest-category-percent');
+        const largestCategoryNameEl = document.getElementById('largest-category-name');
+        const expenseCategoriesLegend = document.getElementById('expense-categories-legend');
+        
+        const categoryBarChart = document.getElementById('category-bar-chart');
+
+        // Category colors for consistent visualization
+        const categoryColors = {
+            'food': '#FF6384',
+            'transport': '#36A2EB',
+            'entertainment': '#FFCE56',
+            'bills': '#4BC0C0',
+            'shopping': '#9966FF',
+            'savings': '#2ecc71',
+            'investment': '#e74c3c',
+            'healthcare': '#FF9F40',
+            'education': '#C9CBCF',
+            'other': '#8c8c8c'
+        };
+
+        // Create particles for the amazing button
+        function createButtonParticles() {
+            const particlesContainer = document.getElementById('btn-particles');
+            particlesContainer.innerHTML = '';
+            
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random position
+                const left = Math.random() * 100;
+                const delay = Math.random() * 3;
+                
+                particle.style.left = `${left}%`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Tab switching
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                
+                authTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                loginForm.classList.remove('active');
+                signupForm.classList.remove('active');
+                
+                if (tabName === 'login') {
+                    loginForm.classList.add('active');
+                } else {
+                    signupForm.classList.add('active');
+                }
+            });
+        });
+
+        // Show signup form
+        showSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            authTabs[1].click();
+        });
+
+        // Show login form
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            authTabs[0].click();
+        });
+
+        // Login function
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Simulate login - in a real app, this would be an API call
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                loadUserData();
+                showApp();
+            } else {
+                alert('Invalid email or password');
+            }
+        });
+
+        // Signup function
+        signupBtn.addEventListener('click', () => {
+            const firstName = document.getElementById('signup-firstname').value;
+            const lastName = document.getElementById('signup-lastname').value;
+            const email = document.getElementById('signup-email').value;
+            const phone = document.getElementById('signup-phone').value;
+            const password = document.getElementById('signup-password').value;
+            
+            if (!firstName || !lastName || !email || !phone || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Check if user already exists
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.find(u => u.email === email)) {
+                alert('User with this email already exists');
+                return;
+            }
+            
+            // Create new user
+            const newUser = {
+                id: generateID(),
+                firstName,
+                lastName,
+                email,
+                phone,
+                password,
+                loginMethod: 'email'
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            loadUserData();
+            showApp();
+            
+            // Switch to login tab for next time
+            authTabs[0].click();
+        });
+
+        // Logout function
+        logoutBtn.addEventListener('click', () => {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            authContainer.style.display = 'block';
+            appContainer.style.display = 'none';
+            
+            // Clear forms
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('signup-firstname').value = '';
+            document.getElementById('signup-lastname').value = '';
+            document.getElementById('signup-email').value = '';
+            document.getElementById('signup-phone').value = '';
+            document.getElementById('signup-password').value = '';
+        });
+
+        // Show main app
+        function showApp() {
+            authContainer.style.display = 'none';
+            appContainer.style.display = 'block';
+            createButtonParticles();
+        }
+
+        // Load user data
+        function loadUserData() {
+            // Update user info in header
+            userAvatar.textContent = currentUser.firstName.charAt(0).toUpperCase();
+            userName.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            
+            // Load user's transactions
+            const userTransactions = JSON.parse(localStorage.getItem(`transactions_${currentUser.id}`)) || [];
+            transactions = userTransactions;
+            
+            updateUI();
+        }
+
+        // Generate unique ID
+        function generateID() {
+            return Math.floor(Math.random() * 1000000);
+        }
+
+        // Add transaction
+        transactionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value;
+            
+            if (!description || !amount || !type || !category) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const transaction = {
+                id: generateID(),
+                description,
+                amount,
+                type,
+                category,
+                date: new Date().toLocaleDateString()
+            };
+            
+            transactions.push(transaction);
+            saveUserData();
+            updateUI();
+            transactionForm.reset();
+            
+            // Button animation feedback
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+            setTimeout(() => {
+                submitBtn.style.background = 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)';
+            }, 500);
+        });
+
+        // Remove transaction
+        function removeTransaction(id) {
+            transactions = transactions.filter(transaction => transaction.id !== id);
+            saveUserData();
+            updateUI();
+        }
+
+        // Save user data to localStorage
+        function saveUserData() {
+            localStorage.setItem(`transactions_${currentUser.id}`, JSON.stringify(transactions));
+        }
+
+        // Update UI
+        function updateUI() {
+            // Clear transaction list
+            transactionList.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                transactionList.innerHTML = '<div class="transaction-item" style="text-align: center; color: #777; padding: 20px;">No transactions yet. Add your first transaction above.</div>';
+            } else {
+                // Add transactions to list
+                transactions.forEach(transaction => {
+                    const transactionEl = document.createElement('div');
+                    transactionEl.classList.add('transaction-item');
+                    transactionEl.classList.add(transaction.type === 'income' ? 'income-transaction' : 'expense-transaction');
+                    
+                    transactionEl.innerHTML = `
+                        <div class="transaction-details">
+                            <span class="transaction-name">${transaction.description}</span>
+                            <span class="transaction-category">${transaction.category} • ${transaction.date}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="transaction-amount">${transaction.type === 'income' ? '+' : '-'}₹${transaction.amount.toFixed(2)}</span>
+                            <button class="delete-btn" onclick="removeTransaction(${transaction.id})">Delete</button>
+                        </div>
+                    `;
+                    
+                    transactionList.appendChild(transactionEl);
+                });
+            }
+            
+            // Update summary
+            updateSummary();
+            
+            // Update graphs
+            updateIncomeExpenseChart();
+            updateExpenseCategoriesChart();
+            updateCategoryBarChart();
+        }
+
+        // Update summary
+        function updateSummary() {
+            const incomes = transactions
+                .filter(transaction => transaction.type === 'income')
+                .reduce((total, transaction) => total + transaction.amount, 0);
+            
+            const expenses = transactions
+                .filter(transaction => transaction.type === 'expense')
+                .reduce((total, transaction) => total + transaction.amount, 0);
+            
+            const balance = incomes - expenses;
+            
+            totalIncomeEl.textContent = `₹${incomes.toFixed(2)}`;
+            totalExpensesEl.textContent = `₹${expenses.toFixed(2)}`;
+            balanceEl.textContent = `₹${balance.toFixed(2)}`;
+        }
+
+        // Update Income vs Expense Pie Chart
+        function updateIncomeExpenseChart() {
+            const incomes = transactions
+                .filter(transaction => transaction.type === 'income')
+                .reduce((total, transaction) => total + transaction.amount, 0);
+            
+            const expenses = transactions
+                .filter(transaction => transaction.type === 'expense')
+                .reduce((total, transaction) => total + transaction.amount, 0);
+            
+            const total = incomes + expenses;
+            
+            // Calculate percentages
+            let incomePercent = 0;
+            let expensePercent = 0;
+            
+            if (total > 0) {
+                incomePercent = (incomes / total) * 100;
+                expensePercent = (expenses / total) * 100;
+            }
+            
+            // Update pie chart
+            incomeExpenseChart.style.background = `conic-gradient(
+                #2ecc71 0% ${incomePercent}%, 
+                #e74c3c ${incomePercent}% 100%
+            )`;
+            
+            // Update display values
+            incomePercentEl.textContent = `${incomePercent.toFixed(1)}%`;
+            incomeAmountEl.textContent = `₹${incomes.toFixed(2)}`;
+            expenseAmountEl.textContent = `₹${expenses.toFixed(2)}`;
+        }
+
+        // Update Expense Categories Pie Chart
+        function updateExpenseCategoriesChart() {
+            // Get expenses by category
+            const expensesByCategory = {};
+            transactions
+                .filter(transaction => transaction.type === 'expense')
+                .forEach(transaction => {
+                    if (!expensesByCategory[transaction.category]) {
+                        expensesByCategory[transaction.category] = 0;
+                    }
+                    expensesByCategory[transaction.category] += transaction.amount;
+                });
+            
+            // Calculate total expenses
+            const totalExpenses = Object.values(expensesByCategory).reduce((sum, amount) => sum + amount, 0);
+            
+            // Clear legend
+            expenseCategoriesLegend.innerHTML = '';
+            
+            if (totalExpenses === 0) {
+                // No expenses yet
+                expenseCategoriesChart.style.background = '#f0f0f0';
+                largestCategoryPercentEl.textContent = '0%';
+                largestCategoryNameEl.textContent = 'No Data';
+                return;
+            }
+            
+            // Sort categories by amount (descending)
+            const sortedCategories = Object.entries(expensesByCategory)
+                .sort((a, b) => b[1] - a[1]);
+            
+            // Generate conic gradient for pie chart
+            let gradientString = '';
+            let accumulatedPercent = 0;
+            
+            sortedCategories.forEach(([category, amount], index) => {
+                const percent = (amount / totalExpenses) * 100;
+                const color = categoryColors[category] || '#8c8c8c';
+                
+                gradientString += `${color} ${accumulatedPercent}% ${accumulatedPercent + percent}%`;
+                if (index < sortedCategories.length - 1) {
+                    gradientString += ', ';
+                }
+                
+                accumulatedPercent += percent;
+            });
+            
+            expenseCategoriesChart.style.background = `conic-gradient(${gradientString})`;
+            
+            // Update center display with largest category
+            const largestCategory = sortedCategories[0];
+            if (largestCategory) {
+                const largestPercent = (largestCategory[1] / totalExpenses) * 100;
+                largestCategoryPercentEl.textContent = `${largestPercent.toFixed(1)}%`;
+                largestCategoryNameEl.textContent = largestCategory[0].charAt(0).toUpperCase() + largestCategory[0].slice(1);
+            }
+            
+            // Update legend
+            sortedCategories.forEach(([category, amount]) => {
+                const percent = (amount / totalExpenses) * 100;
+                const color = categoryColors[category] || '#8c8c8c';
+                
+                const legendItem = document.createElement('div');
+                legendItem.classList.add('legend-item');
+                
+                legendItem.innerHTML = `
+                    <div class="legend-info">
+                        <div class="legend-color" style="background-color: ${color};"></div>
+                        <span class="legend-label">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                    </div>
+                    <span class="legend-value">${percent.toFixed(1)}% (₹${amount.toFixed(2)})</span>
+                `;
+                
+                expenseCategoriesLegend.appendChild(legendItem);
+            });
+        }
+
+        // Update Category Bar Chart
+        function updateCategoryBarChart() {
+            // Get expenses by category
+            const expensesByCategory = {};
+            transactions
+                .filter(transaction => transaction.type === 'expense')
+                .forEach(transaction => {
+                    if (!expensesByCategory[transaction.category]) {
+                        expensesByCategory[transaction.category] = 0;
+                    }
+                    expensesByCategory[transaction.category] += transaction.amount;
+                });
+            
+            // Calculate total expenses
+            const totalExpenses = Object.values(expensesByCategory).reduce((sum, amount) => sum + amount, 0);
+            
+            // Clear bar chart
+            categoryBarChart.innerHTML = '';
+            
+            if (totalExpenses === 0) {
+                // No expenses yet
+                const noDataMsg = document.createElement('div');
+                noDataMsg.textContent = 'No expense data available';
+                noDataMsg.style.textAlign = 'center';
+                noDataMsg.style.color = '#777';
+                noDataMsg.style.marginTop = '80px';
+                categoryBarChart.appendChild(noDataMsg);
+                return;
+            }
+            
+            // Find maximum expense for scaling
+            const maxExpense = Math.max(...Object.values(expensesByCategory));
+            
+            // Create bars for each category
+            Object.entries(expensesByCategory).forEach(([category, amount]) => {
+                const percent = (amount / totalExpenses) * 100;
+                const barHeight = (amount / maxExpense) * 100;
+                const color = categoryColors[category] || '#8c8c8c';
+                
+                const barContainer = document.createElement('div');
+                barContainer.classList.add('bar-container');
+                
+                barContainer.innerHTML = `
+                    <div class="bar" style="height: ${barHeight}%; background-color: ${color};">
+                        <div class="bar-value">${percent.toFixed(1)}%</div>
+                    </div>
+                    <div class="bar-label">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                `;
+                
+                categoryBarChart.appendChild(barContainer);
+            });
+        }
+
+        // Check if user is already logged in
+        function checkLoginStatus() {
+            const loggedInUser = localStorage.getItem('currentUser');
+            if (loggedInUser) {
+                currentUser = JSON.parse(loggedInUser);
+                loadUserData();
+                showApp();
+            }
+        }
+
+        // Create dynamic background
+        const background = document.getElementById('dynamicBackground');
+        const colors = [
+            'linear-gradient(45deg, #0c0c0c, #142850)',
+            'linear-gradient(45deg, #0c0c0c, #27496d)',
+            'linear-gradient(45deg, #0c0c0c, #0c7b93)',
+            'linear-gradient(45deg, #0c0c0c, #00a8cc)'
+        ];
+        
+        let currentIndex = 0;
+        
+        function changeBackground() {
+            background.style.background = colors[currentIndex];
+            background.style.transition = 'background 2s ease';
+            
+            currentIndex = (currentIndex + 1) % colors.length;
+        }
+        
+        // Initial call
+        changeBackground();
+        
+        // Change background every 5 seconds
+        setInterval(changeBackground, 5000);
+        
+        // Add floating particles to background
+        function createParticles() {
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = 'rgba(255, 138, 0, 0.3)';
+                particle.style.borderRadius = '50%';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.boxShadow = '0 0 10px rgba(255, 138, 0, 0.5)';
+                background.appendChild(particle);
+                
+                // Animate particles
+                animateParticle(particle);
+            }
+        }
+        
+        function animateParticle(particle) {
+            let x = Math.random() * 100;
+            let y = Math.random() * 100;
+            let duration = Math.random() * 20 + 10;
+            
+            particle.animate([
+                { transform: `translate(${x}vw, ${y}vh)` }
+            ], {
+                duration: duration * 1000,
+                iterations: Infinity,
+                direction: 'alternate',
+                easing: 'ease-in-out'
+            });
+        }
+        
+        createParticles();
+
+        // Initialize the app
+        checkLoginStatus();
+    </script>
+</body>
+</html>/body>
+</html>
